@@ -170,8 +170,6 @@ if uploaded_file:
                 fig_bar.update_layout(title='Bar Chart - توزيع الأعمار مع الفئة والعدد والنسبة', title_x=0.5, xaxis_tickangle=-45, yaxis_title='العدد', xaxis_title='الفئة العمرية')
                 st.plotly_chart(fig_bar, use_container_width=True)
 
-
-
         col5, col6 = st.columns(2)
 
         with col5:
@@ -184,7 +182,11 @@ if uploaded_file:
                 st.plotly_chart(fig_tree, use_container_width=True)
 
         with col6:
-
+            if 'الجنس' in df.columns and 'العمر' in df.columns:
+                fig_box = px.box(df, x='الجنس', y='العمر', color='الجنس',
+                                 color_discrete_sequence=['#2F4156', '#C8D9E6'])
+                fig_box.update_layout(title='Boxplot - العمر حسب الجنس', title_x=0.5)
+                st.plotly_chart(fig_box, use_container_width=True)
 
 
     # ---------------- Tab 3 ---------------- #
