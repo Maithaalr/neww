@@ -46,7 +46,17 @@ if uploaded_file:
     df.columns = df.columns.str.strip()
     df = df.loc[:, ~df.columns.duplicated()]
 
-    tab1, tab2, tab3, tab4 = st.tabs(["نظرة عامة", " تحليلات بصرية"," البيانات المفقودة"," عرض البيانات"])
+    from datetime import datetime
+    def calculate_age(birthdate):
+        if pd.isnull(birthdate):
+            return None
+        return datetime.now().year - pd.to_datetime(birthdate).year
+
+    if "تاريخ الميلاد" in df.columns:
+        df["العمر"] = df["تاريخ الميلاد"].apply(calculate_age)
+
+    tab1, tab2, tab3, tab4, tab5 = st.tabs([" نظرة عامة", " تحليلات بصرية", " البيانات المفقودة", " عرض البيانات", " الموظفون فوق 60"])
+
 
     # ---------------- Tab 1 ---------------- #
     with tab1:
@@ -284,6 +294,28 @@ if uploaded_file:
 
         st.markdown("<div class='section-header'> البيانات بعد الفلترة</div>", unsafe_allow_html=True)
         st.dataframe(filtered_df)
+
+
+    # ---------------- Tab 5 ---------------- #
+    with tab5:
+        st.subheader(" الموظفون الذين أعمارهم فوق 60 سنة")
+    
+        over_60 = df[df["العمر"] > 60]
+
+        if not over_60.empty:
+            st.dataframe(over_60, use_container_width=True)
+            st.success(f"عدد الموظفين فوق سن 60: {len(over_60)}")
+
+            # زر تحميل البيانات
+            st.download_button(
+                label=" تحميل البيانات كـ CSV",
+                data=over_60.to_csv(index=False).encode("utf-8"),
+                file_name="الموظفون_فوق_60.csv",
+                mime="text/csv"
+            )
+        else:
+            st.info("لا يوجد موظفون أعمارهم فوق 60 سنة.")
+
 
     # --------------- Sidebar Introduction ---------------- #
     st.sidebar.markdown("## مرحباً بك في لوحة معلومات الموظفين")
