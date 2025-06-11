@@ -306,7 +306,7 @@ if uploaded_file:
             st.dataframe(over_60, use_container_width=True)
             st.success(f"عدد الموظفين فوق سن 60: {len(over_60)}")
 
-            over60_csv = over_60.to_csv(index=False).encode("utf-8")
+            over60_csv = over_60.to_csv(index=False).encode("utf-8-sig")
             st.download_button(" تحميل ملف للموظفين فوق ال 60", data=over60_csv, file_name="الموظفين_فوق_ال60.csv", mime="text/csv")
         else:
             st.info("لا يوجد موظفون أعمارهم فوق 60 سنة.")
