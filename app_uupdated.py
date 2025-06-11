@@ -46,17 +46,7 @@ if uploaded_file:
     df.columns = df.columns.str.strip()
     df = df.loc[:, ~df.columns.duplicated()]
 
-    from datetime import datetime
-    def calculate_age(birthdate):
-        if pd.isnull(birthdate):
-            return None
-        return datetime.now().year - pd.to_datetime(birthdate).year
-
-    if "تاريخ الميلاد" in df.columns:
-        df["العمر"] = df["تاريخ الميلاد"].apply(calculate_age)
-
-    tab1, tab2, tab3, tab4, tab5 = st.tabs([" نظرة عامة", " تحليلات بصرية", " البيانات المفقودة", " عرض البيانات", " الموظفون فوق 60"])
-
+    tab1, tab2, tab3, tab4 = st.tabs(["نظرة عامة", " تحليلات بصرية"," البيانات المفقودة"," عرض البيانات"])
 
     # ---------------- Tab 1 ---------------- #
     with tab1:
@@ -180,6 +170,8 @@ if uploaded_file:
                 fig_bar.update_layout(title='Bar Chart - توزيع الأعمار مع الفئة والعدد والنسبة', title_x=0.5, xaxis_tickangle=-45, yaxis_title='العدد', xaxis_title='الفئة العمرية')
                 st.plotly_chart(fig_bar, use_container_width=True)
 
+
+
         col5, col6 = st.columns(2)
 
         with col5:
@@ -192,11 +184,8 @@ if uploaded_file:
                 st.plotly_chart(fig_tree, use_container_width=True)
 
         with col6:
-            if 'الجنس' in df.columns and 'العمر' in df.columns:
-                fig_box = px.box(df, x='الجنس', y='العمر', color='الجنس',
-                                 color_discrete_sequence=['#2F4156', '#C8D9E6'])
-                fig_box.update_layout(title='Boxplot - العمر حسب الجنس', title_x=0.5)
-                st.plotly_chart(fig_box, use_container_width=True)
+
+
 
 
     # ---------------- Tab 3 ---------------- #
@@ -294,23 +283,6 @@ if uploaded_file:
 
         st.markdown("<div class='section-header'> البيانات بعد الفلترة</div>", unsafe_allow_html=True)
         st.dataframe(filtered_df)
-
-
-    # ---------------- Tab 5 ---------------- #
-    with tab5:
-        st.subheader(" الموظفون الذين أعمارهم فوق 60 سنة")
-    
-        over_60 = df[df["العمر"] > 60]
-
-        if not over_60.empty:
-            st.dataframe(over_60, use_container_width=True)
-            st.success(f"عدد الموظفين فوق سن 60: {len(over_60)}")
-
-            over60_csv = over_60.to_csv(index=False).encode("utf-8-sig")
-            st.download_button(" تحميل ملف للموظفين فوق ال 60", data=over60_csv, file_name="الموظفين_فوق_ال60.csv", mime="text/csv")
-        else:
-            st.info("لا يوجد موظفون أعمارهم فوق 60 سنة.")
-
 
     # --------------- Sidebar Introduction ---------------- #
     st.sidebar.markdown("## مرحباً بك في لوحة معلومات الموظفين")
