@@ -1,4 +1,4 @@
-import streamlit as st
+﻿import streamlit as st
 import pandas as pd
 import plotly.express as px
 import plotly.graph_objects as go
@@ -204,6 +204,31 @@ if uploaded_file:
                                  color_discrete_sequence=['#2F4156', '#C8D9E6'])
                 fig_box.update_layout(title='Boxplot - العمر حسب الجنس', title_x=0.5)
                 st.plotly_chart(fig_box, use_container_width=True)
+
+        col7, col8 = st.columns(2)
+
+        with col7:
+            if 'الحالة الاجتماعية' in df.columns:
+                status_counts = df['الحالة الاجتماعية'].value_counts().reset_index()
+                status_counts.columns = ['الحالة الاجتماعية', 'العدد']
+                status_counts['النسبة'] = round((status_counts['العدد'] / status_counts['العدد'].sum()) * 100, 1)
+                status_counts['التسمية'] = status_counts.apply(
+                    lambda row: f"{row['الحالة الاجتماعية']} | {row['العدد']} ({row['النسبة']}%)", axis=1
+                )
+
+                fig_status = px.bar(
+                    status_counts,
+                    x='الحالة الاجتماعية',
+                    y='العدد',
+                    text='التسمية',
+                    color='الحالة الاجتماعية',
+                    color_discrete_sequence=px.colors.sequential.Blues
+                )
+
+                fig_status.update_traces(textposition='outside')
+                fig_status.update_layout(title='توزيع الحالة الاجتماعية للموظفين', title_x=0.5)
+
+                st.plotly_chart(fig_status, use_container_width=True)
 
 
     # ---------------- Tab 3 ---------------- #
