@@ -230,6 +230,44 @@ if uploaded_file:
 
                 st.plotly_chart(fig_status, use_container_width=True)
 
+        col9, col10 = st.columns(2)
+
+        with col9:
+            if 'المستوى التعليمي' in df.columns and 'الدائرة' in df.columns:
+                # التصنيفات الجديدة
+                education_mapping = {
+                    "ثانوية": "ثانوي",
+                    "ثانوية عامة": "ثانوي",
+                    "دبلوم": "دبلوم",
+                    "دبلوم عالي": "دبلوم",
+                    "باكلوريوس": "جامعي",
+                    "إنجاز": "جامعي",
+                    "إعدادي": "أقل من ثانوي",
+                    "ابتدائي": "أقل من ثانوي",
+                    "يجيد القراه": "أقل من ثانوي",
+                    "يجيد القراءة": "أقل من ثانوي",
+                    "بدون": "أقل من ثانوي"
+                }
+
+                df['التصنيف التعليمي'] = df['المستوى التعليمي'].map(education_mapping)
+
+                # تحديد الجهة المطلوبة
+                selected_ed_dept = st.selectbox("اختر الجهة لعرض توزيع المستوى التعليمي", sorted(df['الدائرة'].dropna().unique()))
+
+                df_dept = df[df['الدائرة'] == selected_ed_dept]
+                edu_counts = df_dept['التصنيف التعليمي'].value_counts().reset_index()
+                edu_counts.columns = ['التصنيف التعليمي', 'العدد']
+
+                fig_edu_pie = px.pie(
+                    edu_counts,
+                    names='التصنيف التعليمي',
+                    values='العدد',
+                    title=f"توزيع المستوى التعليمي حسب التصنيف في {selected_ed_dept}",
+                    color_discrete_sequence=px.colors.sequential.Blues
+                )
+
+                st.plotly_chart(fig_edu_pie, use_container_width=True)
+
 
     # ---------------- Tab 3 ---------------- #
     with tab3:
