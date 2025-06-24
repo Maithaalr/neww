@@ -232,42 +232,61 @@ if uploaded_file:
 
         col9, col10 = st.columns(2)
 
+
+
         with col9:
             if 'المستوى التعليمي' in df.columns and 'الدائرة' in df.columns:
-                # التصنيفات الجديدة
-                education_mapping = {
-                    "ثانوية": "ثانوي",
-                    "ثانوية عامة": "ثانوي",
+                # تصنيفات حسب صورتك
+                education_labels = {
+                    "دكتوراه": "دكتوراه",
+                    "ماجستير": "ماجستير",
+                    "باكلوريوس": "بكالوريوس",
+                    "إنجاز": "بكالوريوس",
                     "دبلوم": "دبلوم",
                     "دبلوم عالي": "دبلوم",
-                    "باكلوريوس": "جامعي",
-                    "إنجاز": "جامعي",
-                    "إعدادي": "أقل من ثانوي",
-                    "ابتدائي": "أقل من ثانوي",
-                    "يجيد القراه": "أقل من ثانوي",
-                    "يجيد القراءة": "أقل من ثانوي",
-                    "بدون": "أقل من ثانوي"
+                    "ثانوية": "ثانوية عامة",
+                    "ثانوية عامة": "ثانوية عامة",
+                    "إعدادي": "من دون الثانوية العامة",
+                    "ابتدائي": "من دون الثانوية العامة",
+                    "يجيد القراه": "من دون الثانوية العامة",
+                    "يجيد القراءة": "من دون الثانوية العامة",
+                    "بدون": "من دون الثانوية العامة"
                 }
 
-                df['التصنيف التعليمي'] = df['المستوى التعليمي'].map(education_mapping)
+                df['التصنيف التعليمي'] = df['المستوى التعليمي'].map(education_labels)
 
-                # تحديد الجهة المطلوبة
-                selected_ed_dept = st.selectbox("اختر الجهة لعرض توزيع المستوى التعليمي", sorted(df['الدائرة'].dropna().unique()))
+                # اختيار الجهة
+                selected_ed_dept = st.selectbox("اختر الجهة لعرض توزيع المستوى التعليمي", sorted(df['الدائرة'].dropna().unique()), key="ed_level")
 
                 df_dept = df[df['الدائرة'] == selected_ed_dept]
                 edu_counts = df_dept['التصنيف التعليمي'].value_counts().reset_index()
                 edu_counts.columns = ['التصنيف التعليمي', 'العدد']
+                edu_counts['النسبة'] = round((edu_counts['العدد'] / edu_counts['العدد'].sum()) * 100, 1)
+                edu_counts['التسمية'] = edu_counts.apply(lambda row: f"{row['التصنيف التعليمي']} | {row['العدد']} ({row['النسبة']}%)", axis=1)
+
+                # ألوان مخصصة نفس الصورة
+                custom_colors = {
+                    "دكتوراه": "#47638B",
+                    "ماجستير": "#457281",
+                    "بكالوريوس": "#2C3C51",
+                    "دبلوم": "#85A9B8",
+                    "ثانوية عامة": "#4B7383",
+                    "من دون الثانوية العامة": "#27363B"
+                }
 
                 fig_edu_pie = px.pie(
                     edu_counts,
                     names='التصنيف التعليمي',
                     values='العدد',
-                    title=f"توزيع المستوى التعليمي حسب التصنيف في {selected_ed_dept}",
-                    color_discrete_sequence=px.colors.sequential.Blues
+                    title=f"توزيع المستوى التعليمي في {selected_ed_dept}",
+                    color='التصنيف التعليمي',
+                    color_discrete_map=custom_colors,
+                    hole=0.3
                 )
 
-                st.plotly_chart(fig_edu_pie, use_container_width=True)
+                fig_edu_pie.update_traces(text=edu_counts['التسمية'], textinfo='text')
 
+                st.plotly_chart(fig_edu_pie, use_container_width=True)
 
     # ---------------- Tab 3 ---------------- #
     with tab3:
